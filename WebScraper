@@ -1,0 +1,49 @@
+import requests
+from bs4 import BeautifulSoup
+import os
+import string
+import shutil
+
+
+def fetch_and_save_articles(url):
+    number_of_pages = int(input())
+    type_of_article = str(input())
+
+    for number in range(number_of_pages):
+        number +=1
+        full_link = url + "&page=" + str(number)
+
+        r = requests.get(full_link)
+        soup = BeautifulSoup(r.content, 'html.parser')
+        articles = soup.find_all('article')
+        path = "C:/Users/jm032/Desktop/Web Scraper/Web Scraper/task/Page_" + str(number)
+        if os.path.exists(path):
+            shutil.rmtree(path)
+        os.makedirs(path, exist_ok=True)
+        for article in articles:
+            article_type = article.find('span', {'data-test': 'article.type'}).get_text().strip()
+            if article_type == type_of_article:
+                # Extract the article title and clean it for use as a filename
+                article_title = article.find('h3').get_text().strip()
+                clean_title = article_title.translate(str.maketrans('', '', string.punctuation)).replace(' ', '_')
+
+                # Extract the link to the full article
+                article_link = article.find('a', {'data-track-action': 'view article'})['href']
+                full_link2 = f"https://www.nature.com{article_link}"
+                # Fetch the full article content
+                article_response = requests.get(full_link2)
+                article_soup = BeautifulSoup(article_response.content, 'html.parser')
+
+                # Extract and clean the article body text
+                article_body = article_soup.find('p', {'class': 'article__teaser'}).get_text().strip()
+
+                # Save the article body to a file
+                filename = os.path.join(path, f"{clean_title}.txt")
+                with open(filename, 'w', encoding='utf-8') as file:
+                    file.write(article_body)
+
+
+# URL of the page to scrape
+url = "https://www.nature.com/nature/articles?sort=PubDate&year=2020"
+fetch_and_save_articles(url)
+print(f"Saved all articles")
