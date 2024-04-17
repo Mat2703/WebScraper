@@ -1,1 +1,1 @@
-Simple program from HYPERSKILL.org made by me. Program takes 2 inputs. First is number of pages that we should search in on webstie nature.com. Second is type of articles. Then program save body from searched artciles and save it in our computer.
+Simple program that takes 2 inputs from the User. First is number_of_pages which tell us how many pages we should go through to find our articles. Second is type_of_article which says what type of article it should be.
